@@ -1,0 +1,144 @@
+ SQL Queries:-
+
+
+Retrieve all users from the Users table:
+SELECT * FROM Users;
+
+Find user details for a specific username ('jamesdavis'):
+SELECT * FROM Users WHERE Username = 'jamesdavis';
+
+List all subscription plans with their prices:
+SELECT SubscriptionName, Price FROM Subscriptions;
+
+Get all content in the 'Technology' category:
+SELECT Title, Description FROM Content
+JOIN Categories ON Content.CategoryID = Categories.CategoryID
+WHERE CategoryName = 'Technology';
+
+Find the number of users with each subscription type:
+SELECT s.SubscriptionName, COUNT(us.UserID) AS NumberOfUsers
+FROM UserSubscriptions us
+JOIN Subscriptions s ON us.SubscriptionID = s.SubscriptionID
+GROUP BY s.SubscriptionName;
+
+Retrieve all content accessed by a specific user (UserID = 1):
+SELECT c.Title, c.Description, ca.AccessDate
+FROM ContentAccess ca
+JOIN Content c ON ca.ContentID = c.ContentID
+WHERE ca.UserID = 1;
+
+Get the total amount paid by each user:
+SELECT u.Username, SUM(p.Amount) AS TotalPaid
+FROM Payments p
+JOIN Users u ON p.UserID = u.UserID
+GROUP BY u.Username;
+
+List all subscriptions that expire in the next 30 days:
+SELECT u.Username, s.SubscriptionName, us.EndDate
+FROM UserSubscriptions us
+JOIN Subscriptions s ON us.SubscriptionID = s.SubscriptionID
+JOIN Users u ON us.UserID = u.UserID
+WHERE us.EndDate BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY);
+
+Find the most expensive subscription plan:
+SELECT SubscriptionName, Price
+FROM Subscriptions
+ORDER BY Price DESC
+LIMIT 1;
+
+List all content titles and their categories:
+SELECT c.Title, cat.CategoryName
+FROM Content c
+JOIN Categories cat ON c.CategoryID = cat.CategoryID;
+
+Update the price of the 'Gold Access' subscription plan to 35.99:
+UPDATE Subscriptions
+SET Price = 35.99
+WHERE SubscriptionName = 'Gold Access';
+
+Delete a specific content record (ContentID = 5):
+DELETE FROM Content
+WHERE ContentID = 5;
+
+Retrieve all content that has not been accessed by any user:
+SELECT Title, Description
+FROM Content
+WHERE ContentID NOT IN (SELECT ContentID FROM ContentAccess);
+
+List all users who have accessed more than 2 pieces of content:
+SELECT u.Username, COUNT(ca.ContentID) AS NumberOfContentAccessed
+FROM ContentAccess ca
+JOIN Users u ON ca.UserID = u.UserID
+GROUP BY u.Username
+HAVING NumberOfContentAccessed > 2;
+
+Find the average price of all subscriptions:
+SELECT AVG(Price) AS AveragePrice
+FROM Subscriptions;
+
+Get the most recent payment date for each user:
+SELECT u.Username, MAX(p.PaymentDate) AS MostRecentPayment
+FROM Payments p
+JOIN Users u ON p.UserID = u.UserID
+GROUP BY u.Username;
+
+List all categories and the number of content items in each category:
+SELECT cat.CategoryName, COUNT(c.ContentID) AS ContentCount
+FROM Categories cat
+LEFT JOIN Content c ON cat.CategoryID = c.CategoryID
+GROUP BY cat.CategoryName;
+
+Retrieve users who have subscriptions expiring today:
+SELECT u.Username, s.SubscriptionName, us.EndDate
+FROM UserSubscriptions us
+JOIN Subscriptions s ON us.SubscriptionID = s.SubscriptionID
+JOIN Users u ON us.UserID = u.UserID
+WHERE us.EndDate = CURDATE();
+
+Find all users who have both 'Basic Access' and 'Pro Plan':
+SELECT u.Username
+FROM UserSubscriptions us1
+JOIN UserSubscriptions us2 ON us1.UserID = us2.UserID
+JOIN Users u ON us1.UserID = u.UserID
+JOIN Subscriptions s1 ON us1.SubscriptionID = s1.SubscriptionID
+JOIN Subscriptions s2 ON us2.SubscriptionID = s2.SubscriptionID
+WHERE s1.SubscriptionName = 'Basic Access'
+AND s2.SubscriptionName = 'Pro Plan';
+
+Get the total revenue generated from each subscription plan:
+SELECT s.SubscriptionName, SUM(p.Amount) AS TotalRevenue
+FROM Payments p
+JOIN Subscriptions s ON p.SubscriptionID = s.SubscriptionID
+GROUP BY s.SubscriptionName;
+
+List the top 3 most popular content pieces based on the number of accesses:
+SELECT c.Title, COUNT(ca.ContentID) AS AccessCount
+FROM ContentAccess ca
+JOIN Content c ON ca.ContentID = c.ContentID
+GROUP BY c.Title
+ORDER BY AccessCount DESC
+LIMIT 3;
+
+Find all users who have not made any payments:
+SELECT u.Username
+FROM Users u
+LEFT JOIN Payments p ON u.UserID = p.UserID
+WHERE p.PaymentID IS NULL;
+
+Retrieve all subscriptions with a duration of more than 6 months:
+SELECT SubscriptionName, DurationMonths
+FROM Subscriptions
+WHERE DurationMonths > 6;
+
+Find the total number of subscriptions purchased by each user:
+SELECT u.Username, COUNT(us.UserSubscriptionID) AS TotalSubscriptions
+FROM UserSubscriptions us
+JOIN Users u ON us.UserID = u.UserID
+GROUP BY u.Username;
+
+Get the details of content and the user who accessed it most recently:
+SELECT c.Title, u.Username, ca.AccessDate
+FROM ContentAccess ca
+JOIN Content c ON ca.ContentID = c.ContentID
+JOIN Users u ON ca.UserID = u.UserID
+WHERE ca.AccessDate = (SELECT MAX(AccessDate) FROM ContentAccess WHERE ContentID = c.ContentID);
